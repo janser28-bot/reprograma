@@ -186,6 +186,15 @@ function coherenceHtml() {
   return out + '</div></section>';
 }
 const hClass = (s) => (s === 'pasado' ? 'h-pasado' : (s === 'futuro' ? 'h-futuro' : 'h-none'));
+function heroHtml(state) {
+  const s = SEMAFORO.filter((x) => x.v === state)[0];
+  return '<div class="hero ' + hClass(state) + '" id="horizon">' +
+    '<img class="hero-img i-pasado" src="hero-pasado.jpg" alt="" decoding="async">' +
+    '<img class="hero-img i-obs" src="hero-observando.jpg" alt="" decoding="async">' +
+    '<img class="hero-img i-fut" src="hero-futuro.jpg" alt="" decoding="async">' +
+    '<div class="hero-cap" aria-live="polite"><span class="hero-dot" id="hero-dot" style="background:' + (s ? s.color : 'transparent') + '"></span>' +
+    '<span id="hero-title">' + esc(s ? s.title : '¿Desde dónde estás hoy?') + '</span></div></div>';
+}
 function planDayNow() {
   const p = S.profile.plan21; if (!p) return null;
   return Math.min(21, Math.max(1, diffDays(todayKey(), p.start) + 1));
@@ -201,11 +210,7 @@ function vHoy() {
   if (store.kind === 'demo') out += '<div class="notice" style="margin-top:14px">Modo demostración: tus datos se guardan solo en este dispositivo.</div>';
 
   if (m === 'programa') {
-    out += '<div class="horizon ' + hClass(d.state) + '" id="horizon" role="img" aria-label="Amanecer que sube o baja según tu semáforo">' +
-      '<svg viewBox="0 0 360 130" preserveAspectRatio="xMidYMax slice" aria-hidden="true">' +
-      '<g class="sun"><circle class="halo" cx="180" cy="104" r="46"/><circle class="disc" cx="180" cy="104" r="26"/></g>' +
-      '<path class="hill1" d="M0 104 C50 92 90 100 140 96 C200 91 250 104 300 97 C330 93 350 98 360 96 V130 H0Z"/>' +
-      '<path class="hill2" d="M0 118 C60 108 110 116 170 112 C230 108 290 118 360 110 V130 H0Z"/></svg></div>';
+    out += heroHtml(d.state);
     out += '<section class="sect" style="margin-top:22px"><h2 class="h2">Tu semáforo de hoy</h2><p class="muted small">¿Desde dónde estás operando ahora?</p><div style="margin-top:12px">' +
       SEMAFORO.map((s) => '<button class="choice" data-act="state" data-v="' + s.v + '" aria-pressed="' + (d.state === s.v) + '">' +
         '<span class="dot" style="background:' + s.color + '"></span><span><b>' + esc(s.title) + '</b><span class="sub">' + esc(s.sub) + '</span></span></button>').join('') +
@@ -741,7 +746,12 @@ const A = {
   },
   state: (b) => {
     const k = todayKey(), d = dayW(k); d.state = b.dataset.v; pDay(k);
-    const h = $('#horizon'); if (h) h.className = 'horizon ' + hClass(d.state);
+    const h = $('#horizon');
+    if (h) {
+      h.className = 'hero ' + hClass(d.state);
+      const sm = SEMAFORO.filter((x) => x.v === d.state)[0];
+      if (sm) { $('#hero-title').textContent = sm.title; $('#hero-dot').style.background = sm.color; }
+    }
     document.querySelectorAll('[data-act="state"]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.v === d.state)));
     paintIdea(true);
   },

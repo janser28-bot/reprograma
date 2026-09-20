@@ -116,19 +116,17 @@ button, input, select, textarea { font: inherit; color: inherit; }
 :root[data-mode="gratitud"] .idea .txt { font-size: 22px; }
 .idea .src { color: var(--muted); font-size: 13px; margin-top: 8px; }
 
-/* ---------- Programa: amanecer y semáforo ---------- */
-.horizon { --orb: #BFEFFF; --sky-top: #0B1E4F; --sky-bot: #0A84FF; --hill1: #08132E; --hill2: #050B1C;
-  margin-top: 16px; border-radius: var(--r-lg); overflow: hidden; background: linear-gradient(var(--sky-top), var(--sky-bot)); }
-.horizon.h-pasado { --orb: #7C8BB3; --sky-top: #070B1A; --sky-bot: #2A3560; --hill1: #050915; --hill2: #03060E; }
-.horizon.h-futuro { --orb: #FFFFFF; --sky-top: #0A84FF; --sky-bot: #7FF3FF; --hill1: #0A1E4A; --hill2: #06122F; }
-.horizon svg { display: block; width: 100%; height: clamp(130px, 30vw, 190px); }
-.horizon .disc { fill: var(--orb); }
-.horizon .halo { fill: var(--orb); opacity: .35; }
-.horizon .hill1 { fill: var(--hill1); }
-.horizon .hill2 { fill: var(--hill2); }
-.sun { transition: transform 1.4s cubic-bezier(.2, .7, .2, 1); }
-.h-pasado .sun { transform: translateY(42px); }
-.h-futuro .sun { transform: translateY(-58px); }
+/* ---------- Programa: paisaje del semáforo ---------- */
+.hero { position: relative; width: 100%; margin-top: 16px; border-radius: var(--r-lg); overflow: hidden; background: #0B1E4F;
+  aspect-ratio: 16 / 10; max-height: 360px; }
+.hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transform: scale(1.07);
+  transition: opacity 1.4s ease, transform 9s ease-out; }
+.hero.h-pasado .i-pasado, .hero.h-none .i-obs, .hero.h-futuro .i-fut { opacity: 1; transform: scale(1); }
+.hero::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 55%; pointer-events: none;
+  background: linear-gradient(to top, rgba(3, 8, 24, .74), rgba(3, 8, 24, 0)); }
+.hero-cap { position: absolute; left: 16px; right: 16px; bottom: 14px; z-index: 1; display: flex; align-items: center; gap: 10px;
+  color: #fff; font: 600 18px/1.3 var(--font-head); text-shadow: 0 1px 8px rgba(0, 0, 0, .55); }
+.hero-dot { flex: none; width: 14px; height: 14px; border-radius: 50%; box-shadow: 0 0 0 3px rgba(255, 255, 255, .4); }
 
 .choice { display: flex; gap: 12px; align-items: flex-start; width: 100%; text-align: left; padding: 13px 16px; border-radius: var(--r-md);
   border: 1.5px solid var(--line); background: var(--surface); cursor: pointer; }
