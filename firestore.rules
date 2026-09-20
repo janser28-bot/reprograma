@@ -1,0 +1,55 @@
+rules_version = '2';
+
+// RePrograma · reglas de seguridad de Cloud Firestore
+// Cada persona solo puede leer y escribir SUS propios datos (users/{su uid}/...).
+// Todo lo demás está bloqueado por defecto.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // Perfil: users/{uid}
+    match /users/{uid} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().size() <= 30
+        && (!('name' in request.resource.data) || (request.resource.data.name is string && request.resource.data.name.size() <= 80))
+        && (!('future' in request.resource.data) || (request.resource.data.future is string && request.resource.data.future.size() <= 3000));
+
+      // Registro diario: users/{uid}/days/{AAAA-MM-DD}
+      match /days/{dayId} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && dayId.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+          && request.resource.data.keys().size() <= 20;
+      }
+
+      // Bitácora: users/{uid}/entries/{id}
+      match /entries/{entryId} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0
+          && request.resource.data.text.size() <= 8000
+          && request.resource.data.ts is number;
+      }
+
+      // Enlaces y audios: users/{uid}/links/{id}
+      match /links/{linkId} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && request.resource.data.url is string
+          && request.resource.data.url.size() <= 2000
+          && request.resource.data.title is string
+          && request.resource.data.title.size() <= 120;
+      }
+    }
+  }
+}
